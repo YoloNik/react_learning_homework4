@@ -1,0 +1,29 @@
+.searchbar{
+	background-color: #81BECE;
+	text-align: center;
+	height: 50px;
+	display: flex;
+	align-items: center;
+	position: sticky;
+	top:0;
+	border-bottom: 2px solid #012E4A;
+	border-top: 2px solid #012E4A;
+
+}
+.form{
+	position: relative;
+	width: 100%;
+}
+
+.input{
+	font-size: large;
+	font-family: Roboto,  sans-serif;
+	width: 50%;
+	height: 25px;
+	padding: 0 25px;
+	border: 1px solid #012E4A;
+	border-radius: 16px;
+	color: #012E4A;
+	background-color: #E8EDE7;
+}
+
