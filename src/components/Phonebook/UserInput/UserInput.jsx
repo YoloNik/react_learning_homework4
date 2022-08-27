@@ -30,12 +30,7 @@ function UserInput({ onChange, addContact, valueName, valueTel }) {
         required
       />
       {valueName && valueTel ? (
-        <RegBtn
-          name={valueName}
-          handleClick={addContact}
-          className="addContact"
-          type="submit"
-        >
+        <RegBtn handleClick={addContact} className="addContact" type="submit">
           <AiOutlineUserAdd /> Add contact
         </RegBtn>
       ) : (

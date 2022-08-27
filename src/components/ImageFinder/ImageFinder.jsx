@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Modal from 'components/common/Modal/Modal';
@@ -6,122 +6,119 @@ import RegBtn from 'components/common/RegBtn/RegBtn';
 import { ThreeDots } from 'react-loader-spinner';
 import * as api from '../../service/apiService';
 
-export class ImageFinder extends Component {
-  state = {
-    query: '',
-    apiRes: [],
-    numOfPages: 1,
-    loader: false,
-    isModalOpen: false,
-    srcForModal: {},
-    id: null,
-  };
+const ImageFinder = () => {
+  const [query, setQuery] = useState('');
+  const [apiRes, setApiRes] = useState([]);
+  const [numOfPages, setNumOfPages] = useState(1);
+  const [loader, setLoader] = useState(false);
+  const [firstLoading, setFirstLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [srcForModal, setSrcForModal] = useState({});
+  const [id, setId] = useState(null);
 
-  async componentDidMount() {
-    const apiRes = await api.getData(this.state.query).then(data => data.hits);
-    this.setState({ apiRes });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { query, numOfPages } = this.state;
-
-    if (numOfPages !== prevState.numOfPages) {
-      api.getData(query, numOfPages).then(data => {
-        this.setState({
-          apiRes: [...prevState.apiRes, ...data.hits],
-          numOfPages: numOfPages,
-          loader: false,
-        });
+  const fetchData = useCallback(async () => {
+    return await api.getData(query, numOfPages).then(data => {
+      return setApiRes(prevData => {
+        return [...prevData, ...data.hits];
       });
-    }
-  }
-
-  getInputValue = newQuery => {
-    this.setState({ query: newQuery });
-  };
-
-  getApiColection = () => {
-    const { query } = this.state;
-    api.getData(query).then(data => {
-      this.setState({ apiRes: data.hits });
     });
-  };
+  }, [numOfPages, query]);
 
-  loadMoreImage = e => {
+  useEffect(() => {
+    if (firstLoading)
+      api.getData(query, numOfPages).then(data => setApiRes(data.hits));
+    setFirstLoading(false);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (loader) fetchData();
+
     const loadMoreBtn = document.querySelector('.loadMoreBtn');
 
-    this.setState(prevState => {
-      return {
-        numOfPages: prevState.numOfPages + 1,
-        loader: true,
-      };
-    });
-
-    if (this.componentDidUpdate) {
-      setTimeout(() => {
-        return loadMoreBtn.scrollIntoView({
-          block: 'center',
-          behavior: 'smooth',
-        });
-      }, 350);
+    if (firstLoading && loader) {
+      return loadMoreBtn.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth',
+      });
     }
+    setLoader(false);
+  }, [fetchData, firstLoading, loader]);
+
+  const getInputValue = newQuery => {
+    setQuery(newQuery);
   };
 
-  openModal = e => {
-    this.state.apiRes.filter(el => {
-      if (el.id === +e.target.id) {
-        return this.setState({
-          id: e.target.id,
-          srcForModal: el,
-          isModalOpen: true,
-        });
-      }
-      return el;
+  const getApiColection = async () => {
+    await api.getData(query).then(data => {
+      setApiRes(data.hits);
     });
   };
 
-  closeModal = e => {
-    this.setState({ isModalOpen: false, srcForModal: {} });
+  const loadMoreImage = e => {
+    setNumOfPages(prevPage => {
+      return prevPage + 1;
+    });
+    setLoader(true);
   };
 
-  render() {
-    const { apiRes, isModalOpen, srcForModal, loader } = this.state;
+  const openModal = useCallback(
+    e => {
+      apiRes.filter(el => {
+        if (el.id === +e.target.id) {
+          setId(e.target.id);
+          setSrcForModal(el);
+          setIsModalOpen(true);
+        }
+        return el;
+      });
+    },
+    [apiRes],
+  );
 
-    return (
-      <>
-        <Searchbar
-          handlChangeInput={this.getInputValue}
-          getApiColection={this.getApiColection}
-        />
-        <ImageGallery colectionForRender={apiRes} openModal={this.openModal} />
+  const closeModal = e => {
+    setIsModalOpen(false);
+    setSrcForModal({});
+    setId(null);
+  };
 
-        <Modal
-          isModalOpen={isModalOpen}
-          closeModal={this.closeModal}
-          imageSrc={srcForModal}
-        ></Modal>
-        <RegBtn
-          type="button"
-          handleClick={this.loadMoreImage}
-          className="loadMoreBtn"
-        >
-          {loader ? (
-            <ThreeDots
-              height="50"
-              width="50%"
-              radius="10"
-              color="#012E4A"
-              ariaLabel="three-dots-loading"
-              wrapperStyle={{ justifyContent: 'center' }}
-              visible={loader}
-            />
-          ) : (
-            'Load More'
-          )}
-        </RegBtn>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <Searchbar
+        handlChangeInput={getInputValue}
+        getApiColection={getApiColection}
+      />
+
+      <ImageGallery
+        colectionForRender={apiRes}
+        openModal={openModal}
+        firstLoading={firstLoading}
+      />
+
+      <Modal
+        id={id}
+        isModalOpen={isModalOpen}
+        closeModal={closeModal}
+        imageSrc={srcForModal}
+      ></Modal>
+      <RegBtn type="button" handleClick={loadMoreImage} className="loadMoreBtn">
+        {loader ? (
+          <ThreeDots
+            height="50"
+            width="50%"
+            radius="10"
+            color="#012E4A"
+            ariaLabel="three-dots-loading"
+            wrapperStyle={{ justifyContent: 'center' }}
+            visible={loader}
+          />
+        ) : (
+          'Load More'
+        )}
+      </RegBtn>
+    </>
+  );
+};
 
 export default ImageFinder;

@@ -1,17 +1,28 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { memo, useEffect } from 'react';
 import ContentLoader from 'react-content-loader';
 import { nanoid } from 'nanoid';
 import s from './ImageGalleryItem.module.css';
 
-function ImageGalleryItem({ images, openModal }) {
+function ImageGalleryItem({ images, openModal, firstLoading }) {
+  //console.log(images);
+  //useEffect(() => {
+  //  console.log(images);
+  //}, [images]);
+  //useEffect(() => {
+  //  console.log('openModal');
+  //}, [openModal]);
+  //useEffect(() => {
+  //  console.log('firstLoading');
+  //}, [firstLoading]);
+
   return (
     <>
       {images &&
         images.map(image => {
           return (
             <li key={nanoid()} className={s.galleryItem}>
-              {!!image.previewURL ? (
+              {!firstLoading ? (
                 <img
                   key={image.id}
                   id={image.id}
@@ -38,10 +49,9 @@ function ImageGalleryItem({ images, openModal }) {
     </>
   );
 }
-
 ImageGalleryItem.propTypes = {
   images: PropTypes.array.isRequired,
   openModal: PropTypes.func.isRequired,
 };
 
-export default ImageGalleryItem;
+export default memo(ImageGalleryItem);

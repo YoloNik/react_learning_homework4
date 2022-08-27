@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import UserInput from './UserInput/UserInput';
 import FilterPhonebook from './FilterPhonebook/FilterPhonebook';
 import ContactList from './ContactList/ContactList';
@@ -12,89 +13,96 @@ const contactsData = storage.get(STORAGE_KEY)
   ? { contacts: storage.get(STORAGE_KEY) }
   : { ...phonebookData };
 
-export class Phonebook extends Component {
-  state = {
-    ...contactsData,
-    name: '',
-    number: '',
-  };
+const Phonebook = () => {
+  const [filter, setFilter] = useState('');
+  const [user, setUser] = useState('');
+  const [number, setNumber] = useState('');
 
-  componentDidUpdate(prevProps, prevState) {
-    const { contacts } = this.state;
-    if (prevState.contacts !== contacts) {
-      storage.save(STORAGE_KEY, contacts);
+  const [storageContacts, setStorageContscts] = useLocalStorage(
+    STORAGE_KEY,
+    contactsData.contacts,
+  );
+
+  useEffect(() => {
+    setStorageContscts(contactsData.contacts);
+  }, [setStorageContscts]);
+
+  const handleChange = e => {
+    switch (e.target.name) {
+      case 'name':
+        setUser(e.target.value);
+        break;
+      case 'number':
+        setNumber(e.target.value);
+        break;
+      case 'filter':
+        setFilter(e.target.value);
+        break;
+
+      default:
+        break;
     }
-  }
-
-  handleChange = e => {
-    const { name, value } = e.target;
-    this.setState({ [name]: value });
   };
 
-  addContact = e => {
+  const addContact = e => {
     e.preventDefault();
-    const searchSameName = this.state.contacts
+
+    const searchSameName = storageContacts
       .map(cont => cont.name)
-      .includes(e.target.name);
+      .includes(user);
 
     searchSameName
-      ? alert(`${e.target.name} is already in contacts`)
-      : this.setState(prevState => ({
-          contacts: [
-            {
-              name: prevState.name,
-              number: prevState.number,
-              id: nanoid(),
-            },
-            ...prevState.contacts,
-          ],
-        }));
-    storage.save('contacts', this.state.contacts);
-    this.reset();
+      ? alert(`${user} is already in contacts`)
+      : setStorageContscts(prevContacts => {
+          const newContact = {
+            name: user,
+            number: number,
+            id: nanoid(),
+          };
+          return [newContact, ...prevContacts];
+        });
+
+    reset();
   };
 
-  deleteContact = e => {
-    const contactsWhisOutDeletedContact = this.state.contacts.filter(
+  const reset = () => {
+    setUser('');
+    setNumber('');
+  };
+
+  const deleteContact = e => {
+    const contactsWhisOutDeletedContact = storageContacts.filter(
       contact => contact.id !== e.target.name,
     );
-    this.setState({ contacts: contactsWhisOutDeletedContact });
+    setStorageContscts(contactsWhisOutDeletedContact);
   };
 
-  filterByName = () => {
-    return this.state.contacts.filter(el =>
-      el.name
-        .toLocaleLowerCase()
-        .includes(this.state.filter.toLocaleLowerCase()),
+  const filterByName = () => {
+    return storageContacts.filter(el =>
+      el.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase()),
     );
   };
 
-  reset = () => {
-    this.setState({ name: '', number: '' });
-  };
+  return (
+    <div className={s.phonebook}>
+      <h2 className={s.title}>Phonebook</h2>
+      <UserInput
+        valueName={user}
+        valueTel={number}
+        onChange={handleChange}
+        addContact={addContact}
+      />
 
-  render() {
-    const { name, number, filter, contacts } = this.state;
-    return (
-      <div className={s.phonebook}>
-        <h2 className={s.title}>Phonebook</h2>
-        <UserInput
-          valueName={name}
-          valueTel={number}
-          onChange={this.handleChange}
-          addContact={this.addContact}
-        />
-
-        <h3>Contacts</h3>
-        <FilterPhonebook filterValue={filter} onChange={this.handleChange} />
-        <ContactList
-          filter={filter}
-          contacts={contacts}
-          filterByName={this.filterByName}
-          deleteContact={this.deleteContact}
-        />
-      </div>
-    );
-  }
-}
+      <h3>Contacts</h3>
+      <FilterPhonebook filterValue={filter} onChange={handleChange} />
+      <ContactList
+        filter={filter}
+        contacts={storageContacts}
+        filterByName={filterByName}
+        deleteContact={deleteContact}
+      />
+    </div>
+  );
+};
 
 export default Phonebook;
