@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { memo, useEffect } from 'react';
+import React from 'react';
 import ContentLoader from 'react-content-loader';
 import { nanoid } from 'nanoid';
 import s from './ImageGalleryItem.module.css';

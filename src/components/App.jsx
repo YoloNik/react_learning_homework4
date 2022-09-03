@@ -6,8 +6,8 @@ import ImageFinder from './ImageFinder/ImageFinder';
 export const App = () => {
   return (
     <>
-      {/*<Feedback />
-      <Phonebook />*/}
+      <Feedback />
+      <Phonebook />
       <ImageFinder />
     </>
   );

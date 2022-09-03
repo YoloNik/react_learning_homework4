@@ -36,6 +36,7 @@ const ImageFinder = () => {
 
   useEffect(() => {
     fetchImg();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

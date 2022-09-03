@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import RegBtn from '../../common/RegBtn/RegBtn';
 import { FiSearch } from 'react-icons/fi';
@@ -38,6 +38,9 @@ function Searchbar({ handlChangeInput, getApiColection }) {
   );
 }
 
-Searchbar.propTypes = {};
+Searchbar.propTypes = {
+  handlChangeInput: PropTypes.func.isRequired,
+  getApiColection: PropTypes.func.isRequired,
+};
 
 export default Searchbar;
