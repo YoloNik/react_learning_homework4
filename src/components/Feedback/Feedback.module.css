@@ -7,14 +7,3 @@
 	border: 1px solid black;
 }
 
-.buttonWrapper, h2{
-	text-align: center;
-}
-.button {
-	margin: 0 5px;
-	background-color: #E8EDE7;
-	border: 2px solid #012E4A;
-	border-radius: 16px;
-	width: 20%;
-	height: 30px;
-}

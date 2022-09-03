@@ -4,7 +4,6 @@ import './RegBtn.css';
 import PropTypes from 'prop-types';
 
 function RegBtn({ handleClick, type, name, children, className }) {
-  //console.log(handleClick);
   return (
     <button name={name} onClick={handleClick} type={type} className={className}>
       {children}

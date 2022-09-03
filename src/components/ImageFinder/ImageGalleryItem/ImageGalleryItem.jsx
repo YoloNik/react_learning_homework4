@@ -1,13 +1,14 @@
 import PropTypes from 'prop-types';
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import ContentLoader from 'react-content-loader';
 import { nanoid } from 'nanoid';
 import s from './ImageGalleryItem.module.css';
 
 function ImageGalleryItem({ images, openModal, firstLoading }) {
   //console.log(images);
+  //console.log(images);
   //useEffect(() => {
-  //  console.log(images);
+  //  console.log('images');
   //}, [images]);
   //useEffect(() => {
   //  console.log('openModal');
@@ -54,4 +55,4 @@ ImageGalleryItem.propTypes = {
   openModal: PropTypes.func.isRequired,
 };
 
-export default memo(ImageGalleryItem);
+export default ImageGalleryItem;

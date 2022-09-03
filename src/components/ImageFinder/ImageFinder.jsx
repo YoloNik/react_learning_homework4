@@ -11,56 +11,60 @@ const ImageFinder = () => {
   const [apiRes, setApiRes] = useState([]);
   const [numOfPages, setNumOfPages] = useState(1);
   const [loader, setLoader] = useState(false);
-  const [firstLoading, setFirstLoading] = useState(true);
+  const [firstLoading, setFirstLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [srcForModal, setSrcForModal] = useState({});
   const [id, setId] = useState(null);
 
-  const fetchData = useCallback(async () => {
-    return await api.getData(query, numOfPages).then(data => {
-      return setApiRes(prevData => {
-        return [...prevData, ...data.hits];
-      });
-    });
+  const fetchImg = useCallback(async () => {
+    setFirstLoading(true);
+    setLoader(true);
+    try {
+      if (numOfPages === 1) {
+        const imageArr = await api
+          .getData(query, numOfPages)
+          .then(img => img.hits);
+        setApiRes(imageArr);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoader(false);
+      setFirstLoading(false);
+    }
   }, [numOfPages, query]);
 
   useEffect(() => {
-    if (firstLoading)
-      api.getData(query, numOfPages).then(data => setApiRes(data.hits));
-    setFirstLoading(false);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchImg();
   }, []);
 
   useEffect(() => {
-    if (loader) fetchData();
+    if (numOfPages === 1) return;
 
-    const loadMoreBtn = document.querySelector('.loadMoreBtn');
+    const addNewImages = async () => {
+      const imageArr = await api
+        .getData(query, numOfPages)
+        .then(img => img.hits);
+      setApiRes(prevImages => [...prevImages, ...imageArr]);
+    };
+    addNewImages();
 
-    if (firstLoading && loader) {
-      return loadMoreBtn.scrollIntoView({
-        block: 'center',
-        behavior: 'smooth',
-      });
-    }
-    setLoader(false);
-  }, [fetchData, firstLoading, loader]);
+    //if (loader) {
+    //  const loadMoreBtn = document.querySelector('.loadMoreBtn');
 
-  const getInputValue = newQuery => {
-    setQuery(newQuery);
-  };
+    //  loadMoreBtn.scrollIntoView({
+    //    block: 'center',
+    //    behavior: 'smooth',
+    //  });
+    //}
 
-  const getApiColection = async () => {
-    await api.getData(query).then(data => {
-      setApiRes(data.hits);
-    });
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [numOfPages]);
 
   const loadMoreImage = e => {
     setNumOfPages(prevPage => {
       return prevPage + 1;
     });
-    setLoader(true);
   };
 
   const openModal = useCallback(
@@ -85,10 +89,7 @@ const ImageFinder = () => {
 
   return (
     <>
-      <Searchbar
-        handlChangeInput={getInputValue}
-        getApiColection={getApiColection}
-      />
+      <Searchbar handlChangeInput={setQuery} getApiColection={fetchImg} />
 
       <ImageGallery
         colectionForRender={apiRes}

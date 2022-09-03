@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
 import s from './ImageGallery.module.css';
 

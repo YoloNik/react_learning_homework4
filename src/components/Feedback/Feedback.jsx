@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import FeedbackStats from './FeedbackStats/FeedbackStats';
-import RegBtn from 'components/common/RegBtn/RegBtn';
-import s from './Feedback.module.css';
+import FeedbackControls from './FeedbackControls/FeedbackControls';
+
+import styles from './Feedback.module.css';
+import { useCallback } from 'react';
 
 const Feedback = () => {
   const [feedbackGood, setFeedbackGood] = useState(0);
   const [feedbackNeutral, setFeedbackNeutral] = useState(0);
   const [feedbackBad, setFeedbackBad] = useState(0);
 
-  const addFeedback = e => {
+  const addFeedback = useCallback(e => {
     const statisticsBtnName = e.target.textContent.toLowerCase();
 
     switch (statisticsBtnName) {
@@ -25,7 +27,7 @@ const Feedback = () => {
       default:
         break;
     }
-  };
+  }, []);
 
   const countTotalFeedback = () => {
     return feedbackGood + feedbackNeutral + feedbackBad;
@@ -36,40 +38,12 @@ const Feedback = () => {
   };
 
   return (
-    <div className={s.feedBackPaper}>
+    <div className={styles.feedBackPaper}>
       <h2>Please leave feedback</h2>
-      <div className={s.buttonWrapper}>
-        <RegBtn
-          handleClick={addFeedback}
-          title="Good"
-          name="good"
-          type="button"
-          className={s.button}
-        >
-          Good
-        </RegBtn>
-        <RegBtn
-          handleClick={addFeedback}
-          title="Neutral"
-          name="neutral"
-          type="button"
-          className={s.button}
-        >
-          Neutral
-        </RegBtn>
-        <RegBtn
-          handleClick={addFeedback}
-          title="Bad"
-          name="bad"
-          type="button"
-          className={s.button}
-        >
-          Bad
-        </RegBtn>
-      </div>
+      <FeedbackControls addFeedback={addFeedback} />
       <h3>Statistics</h3>
       {countTotalFeedback() ? (
-        <div className={s.feedbackStatsWrapper}>
+        <div className={styles.feedbackStatsWrapper}>
           <FeedbackStats
             good={feedbackGood}
             neutral={feedbackNeutral}
