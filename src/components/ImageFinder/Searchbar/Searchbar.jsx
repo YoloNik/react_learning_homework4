@@ -1,22 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import RegBtn from '../../common/RegBtn/RegBtn';
 import { FiSearch } from 'react-icons/fi';
 import s from './Searchbar.module.css';
 
-function Searchbar({ handlChangeInput, getApiColection }) {
-  const [query, setQuery] = useState('');
-
+function Searchbar({ setQuery, getApiColection, query }) {
   const findImage = e => {
     e.preventDefault();
     getApiColection();
   };
 
-  const handleChange = e => {
-    const currentValue = e.target.value;
-    setQuery(currentValue);
-    handlChangeInput(currentValue);
-  };
+  //const handleChange = e => {
+  //  const currentValue = e.target.value;
+  //  setQuery(currentValue);
+  //  handlChangeInput(currentValue);
+  //};
 
   return (
     <header className={s.searchbar}>
@@ -26,7 +24,7 @@ function Searchbar({ handlChangeInput, getApiColection }) {
           type="text"
           autoComplete="off"
           placeholder="Search images and photos"
-          onChange={handleChange}
+          onChange={e => setQuery(e.target.value)}
           name="query"
           value={query}
         />
@@ -39,8 +37,9 @@ function Searchbar({ handlChangeInput, getApiColection }) {
 }
 
 Searchbar.propTypes = {
-  handlChangeInput: PropTypes.func.isRequired,
+  setQuery: PropTypes.func.isRequired,
   getApiColection: PropTypes.func.isRequired,
+  query: PropTypes.string.isRequired,
 };
 
 export default Searchbar;

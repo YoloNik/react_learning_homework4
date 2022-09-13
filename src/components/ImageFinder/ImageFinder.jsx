@@ -11,53 +11,27 @@ const ImageFinder = () => {
   const [apiRes, setApiRes] = useState([]);
   const [numOfPages, setNumOfPages] = useState(1);
   const [loader, setLoader] = useState(false);
-  const [firstLoading, setFirstLoading] = useState(false);
+  const [firstLoading, setFirstLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [srcForModal, setSrcForModal] = useState({});
-  const [id, setId] = useState(null);
 
-  const fetchImg = useCallback(async () => {
-    setFirstLoading(true);
+  const fetchImg = useCallback(async (query, numOfPages) => {
+    setFirstLoading(false);
     setLoader(true);
     try {
-      if (numOfPages === 1) {
-        const imageArr = await api
-          .getData(query, numOfPages)
-          .then(img => img.hits);
-        setApiRes(imageArr);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoader(false);
-      setFirstLoading(false);
-    }
-  }, [numOfPages, query]);
-
-  useEffect(() => {
-    fetchImg();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (numOfPages === 1) return;
-
-    const addNewImages = async () => {
       const imageArr = await api
         .getData(query, numOfPages)
         .then(img => img.hits);
       setApiRes(prevImages => [...prevImages, ...imageArr]);
-    };
-    addNewImages();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoader(false);
+    }
+  }, []);
 
-    //if (loader) {
-    //  const loadMoreBtn = document.querySelector('.loadMoreBtn');
-
-    //  loadMoreBtn.scrollIntoView({
-    //    block: 'center',
-    //    behavior: 'smooth',
-    //  });
-    //}
+  useEffect(() => {
+    fetchImg(query, numOfPages);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [numOfPages]);
@@ -72,7 +46,6 @@ const ImageFinder = () => {
     e => {
       apiRes.filter(el => {
         if (el.id === +e.target.id) {
-          setId(e.target.id);
           setSrcForModal(el);
           setIsModalOpen(true);
         }
@@ -85,21 +58,19 @@ const ImageFinder = () => {
   const closeModal = e => {
     setIsModalOpen(false);
     setSrcForModal({});
-    setId(null);
   };
 
   return (
     <>
-      <Searchbar handlChangeInput={setQuery} getApiColection={fetchImg} />
+      <Searchbar setQuery={setQuery} getApiColection={fetchImg} query={query} />
 
       <ImageGallery
-        colectionForRender={apiRes}
+        apiRes={apiRes}
         openModal={openModal}
         firstLoading={firstLoading}
       />
 
       <Modal
-        id={id}
         isModalOpen={isModalOpen}
         closeModal={closeModal}
         imageSrc={srcForModal}

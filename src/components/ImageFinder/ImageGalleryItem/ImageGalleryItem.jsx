@@ -1,31 +1,17 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import ContentLoader from 'react-content-loader';
-import { nanoid } from 'nanoid';
 import s from './ImageGalleryItem.module.css';
 
-function ImageGalleryItem({ images, openModal, firstLoading }) {
-  //console.log(images);
-  //console.log(images);
-  //useEffect(() => {
-  //  console.log('images');
-  //}, [images]);
-  //useEffect(() => {
-  //  console.log('openModal');
-  //}, [openModal]);
-  //useEffect(() => {
-  //  console.log('firstLoading');
-  //}, [firstLoading]);
-
+function ImageGalleryItem({ apiRes, openModal, firstLoading }) {
   return (
     <>
-      {images &&
-        images.map(image => {
+      {apiRes &&
+        apiRes.map(image => {
           return (
-            <li key={nanoid()} className={s.galleryItem}>
+            <li key={image.id} className={s.galleryItem}>
               {!firstLoading ? (
                 <img
-                  key={image.id}
                   id={image.id}
                   onClick={openModal}
                   src={image.previewURL}
@@ -33,7 +19,6 @@ function ImageGalleryItem({ images, openModal, firstLoading }) {
                 />
               ) : (
                 <ContentLoader
-                  key={image.id}
                   speed={2}
                   width={400}
                   height={160}
@@ -51,7 +36,7 @@ function ImageGalleryItem({ images, openModal, firstLoading }) {
   );
 }
 ImageGalleryItem.propTypes = {
-  images: PropTypes.array.isRequired,
+  apiRes: PropTypes.array,
   openModal: PropTypes.func.isRequired,
 };
 
